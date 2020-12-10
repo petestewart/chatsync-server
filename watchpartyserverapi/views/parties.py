@@ -8,7 +8,7 @@ from rest_framework import status
 from watchpartyserverapi.models import Member, Party
 
 class Parties(ViewSet):
-    """Request handlers for user Member info in the WatchParty Platform"""
+    """Request handlers for user Party info in the WatchParty Platform"""
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def create(self, request):
@@ -38,7 +38,7 @@ class Parties(ViewSet):
             @apiSuccess (200) {id} party.id party Id
             @apiSuccess (200) {String} party.title Short form title of party
             @apiSuccess (200) {String} party.description Long form description of party
-            @apiSuccess (200) {Object} party.creator Created party
+            @apiSuccess (200) {Object} party.creator Created Party
             @apiSuccess (200) {Date} party.datetime Date and time of party
             @apiSuccess (200) {Boolean} party.isPublic Status of party's privacy
             @apiSuccessExample {json} Success
