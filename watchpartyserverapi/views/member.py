@@ -45,7 +45,6 @@ class Members(ViewSet):
                 "bio": "Just here to have fun",
                 "location": "Nashville, TN",
                 "profile_pic": "http://example.com/pic.jpg",
-                "location": "Nashville, TN",
                 "time_zone_offset": -6
             }
         """
@@ -62,50 +61,52 @@ class Members(ViewSet):
             return HttpResponseServerError(ex)
 
 
-    # def list(self, request):
-    #     """
-    #     @api {GET} /profile GET user profile info
-    #     @apiName GetProfile
-    #     @apiGroup UserProfile
+    def list(self, request):
+        """
+        @api {GET} /members GET all user members profile info
+        @apiName GetMemberProfiles
+        @apiGroup UserMemberProfiles
 
-    #     @apiHeader {String} Authorization Auth token
-    #     @apiHeaderExample {String} Authorization
-    #         Token 9ba45f09651c5b0c404f37a2d2572c026c146611
+        @apiHeader {String} Authorization Auth token
+        @apiHeaderExample {String} Authorization
+            Token 9ba45f09651c5b0c404f37a2d2572c026c146611
 
-    #     @apiSuccess (200) {Number} id Profile id
-    #     @apiSuccess (200) {String} url URI of Member profile
-    #     @apiSuccess (200) {Object} user Related user object
-    #     @apiSuccess (200) {String} user.first_name Member first name
-    #     @apiSuccess (200) {String} user.last_name Member last name
-    #     @apiSuccess (200) {String} user.email Member email
-    #     @apiSuccess (200) {String} bio Member bio
-    #     @apiSuccess (200) {String} location Member location
-    #     @apiSuccess (200) {String} profile_pic Member profile pic URL
-    #     @apiSuccess (200) {String} time_zone_offset Member time zone (hours offset to UTC)
+        @apiSuccess (200) {Number} id Member id
+        @apiSuccess (200) {String} url URI of Member profile
+        @apiSuccess (200) {Object} user Related user object
+        @apiSuccess (200) {String} user.first_name Member first name
+        @apiSuccess (200) {String} user.last_name Member last name
+        @apiSuccess (200) {String} user.email Member email
+        @apiSuccess (200) {String} bio Member bio
+        @apiSuccess (200) {String} location Member location
+        @apiSuccess (200) {String} profile_pic Member profile pic URL
+        @apiSuccess (200) {String} time_zone_offset Member time zone (hours offset to UTC)
 
-    #     @apiSuccessExample {json} Success
-    #         HTTP/1.1 200 OK
-    #         {
-    #             "id": 7,
-    #             "url": "http://localhost:8000/members/7",
-    #             "user": {
-    #                 "first_name": "Pete",
-    #                 "last_name": "Stewart",
-    #                 "email": "pete@example.com"
-    #             },
-    #             "bio": "Just here to have fun",
-    #             "location": "Nashville, TN",
-    #             "profile_pic": "http://example.com/pic.jpg",
-    #             "location": "Nashville, TN",
-    #             "time_zone_offset": -6
-    #         }
-    #     """
-    #     try:
-    #         current_user = Member.objects.get(user=request.auth.user)
-    #         serializer = ProfileSerializer(current_user, many=False, context={'request': request})
-    #         return Response(serializer.data)
-    #     except Exception as ex:
-    #         return HttpResponseServerError(ex)
+        @apiSuccessExample {json} Success
+            HTTP/1.1 200 OK
+            {
+                "id": 7,
+                "url": "http://localhost:8000/members/7",
+                "user": {
+                    "first_name": "Pete",
+                    "last_name": "Stewart",
+                    "email": "pete@example.com"
+                },
+                "bio": "Just here to have fun",
+                "location": "Nashville, TN",
+                "profile_pic": "http://example.com/pic.jpg",
+                "time_zone_offset": -6
+            },
+            ...
+        """
+        try:
+            users = Member.objects.all()
+
+            serializer = ProfileSerializer(users, many=True, context={'request': request})
+            return Response(serializer.data)
+            
+        except Exception as ex:
+            return HttpResponseServerError(ex)
 
     def update(self, request, pk=None):
         """
