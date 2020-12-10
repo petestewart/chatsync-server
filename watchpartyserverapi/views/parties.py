@@ -1,0 +1,253 @@
+from django.http import HttpResponseServerError
+from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework import serializers
+from rest_framework import status
+from watchpartyserverapi.models import Member, Party
+
+class Parties(ViewSet):
+    """Request handlers for user Member info in the WatchParty Platform"""
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def create(self, request):
+        """
+            @api {POST} /parties POST new party
+            @apiName CreateParty
+            @apiGroup Parties
+
+            @apiHeader {String} Authorization Auth token
+            @apiHeaderExample {String} Authorization
+                Token 9ba45f09651c5b0c404f37a2d2572c026c146611
+
+            @apiParam {String} name Short form name of party
+            @apiParam {Number} price Cost of party
+            @apiParam {String} description Long form description of party
+            @apiParam {String} location City where party is located
+            @apiParam {Number} category_id Category of party
+            @apiParamExample {json} Input
+                {
+                    "title": "MLS Cup",
+                    "description": "Sounders vs Crew",
+                    "datetime": "2020-12-11 23:30",
+                    "is_public" : false
+                }
+
+            @apiSuccess (200) {Object} party Created party
+            @apiSuccess (200) {id} party.id party Id
+            @apiSuccess (200) {String} party.title Short form title of party
+            @apiSuccess (200) {String} party.description Long form description of party
+            @apiSuccess (200) {Object} party.creator Created party
+            @apiSuccess (200) {Date} party.datetime Date and time of party
+            @apiSuccess (200) {Boolean} party.isPublic Status of party's privacy
+            @apiSuccessExample {json} Success
+                HTTP/1.1 200 OK
+                {
+                    "id": 1,
+                    "title": "MLS Cup",
+                    "datetime": "2020-12-11T23:30:00Z",
+                    "description": "Sounders vs Crew",
+                    "is_public": false,
+                    "creator": {
+                        "id": 1,
+                        "user": {
+                            "first_name": "Pete",
+                            "last_name": "Stewart"
+                        }
+                    }
+                }
+        """
+        current_user = Member.objects.get(user=request.auth.user)
+        new_party = Party()
+        new_party.creator = current_user
+        new_party.title = request.data["title"]
+        new_party.description = request.data["description"]
+        new_party.datetime = request.data["datetime"]
+        new_party.is_public = request.data["is_public"]
+
+        try:
+            new_party.save()
+            serializer = PartySerializer(new_party, many=False, context={'request': request})
+            return Response(serializer.data)
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+    def update(self, request, pk=None):
+        """
+            @api {PUT} /parties/:id  update existing party
+            @apiName UpdateParty
+            @apiGroup Parties
+
+            @apiParam {id} Party Id to update
+
+            @apiHeader {String} Authorization Auth token
+            @apiHeaderExample {String} Authorization
+                Token 9ba45f09651c5b0c404f37a2d2572c026c146611
+
+            @apiParam {String} name Short form name of party
+            @apiParam {Number} price Cost of party
+            @apiParam {String} description Long form description of party
+            @apiParam {Number} quantity Number of items to sell
+            @apiParam {String} location City where party is located
+            @apiParam {Number} category_id Category of party
+            @apiParamExample {json} Input
+                {
+                    "title": "MLS Cup",
+                    "description": "Sounders vs Crew",
+                    "datetime": "2020-12-11 23:30",
+                    "is_public" : false
+                }
+
+            @apiSuccess (200) {Object} party Created party
+            @apiSuccess (200) {id} party.id party Id
+            @apiSuccess (200) {String} party.title Short form title of party
+            @apiSuccess (200) {String} party.description Long form description of party
+            @apiSuccess (200) {Object} party.creator Created party
+            @apiSuccess (200) {Date} party.datetime Date and time of party
+            @apiSuccess (200) {Boolean} party.isPublic Status of party's privacy
+            @apiSuccessExample {json} Success
+                HTTP/1.1 200 OK
+                {
+                    "id": 1,
+                    "title": "MLS Cup",
+                    "datetime": "2020-12-11T23:30:00Z",
+                    "description": "Sounders vs Crew",
+                    "is_public": false,
+                    "creator": {
+                        "id": 1,
+                        "user": {
+                            "first_name": "Pete",
+                            "last_name": "Stewart"
+                        }
+                    }
+                }
+        """
+        party = Party.objects.get(pk=pk)
+        party.title = request.data["title"]
+        party.description = request.data["description"]
+        party.datetime = request.data["datetime"]
+        party.is_public = request.data["is_public"]
+
+        try:
+            party.save()
+            serializer = PartySerializer(party, many=False, context={'request': request})
+            return Response(serializer.data)
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+    def retrieve(self, request, pk=None):
+        """
+            @api {GET} /party/{partyId} GET Party info
+            @apiName GetParty
+            @apiGroup Parties
+
+            @apiHeader {String} Authorization Auth token
+            @apiHeaderExample {String} Authorization
+                Token 9ba45f09651c5b0c404f37a2d2572c026c146611
+
+            @apiSuccess (200) {Number} id Member id
+            @apiSuccess (200) {String} url URI of Member profile
+            @apiSuccess (200) {Object} user Related user object
+            @apiSuccess (200) {String} user.first_name Member first name
+            @apiSuccess (200) {String} user.last_name Member last name
+            @apiSuccess (200) {String} user.email Member email
+            @apiSuccess (200) {String} bio Member bio
+            @apiSuccess (200) {String} location Member location
+            @apiSuccess (200) {String} profile_pic Member profile pic URL
+            @apiSuccess (200) {String} time_zone_offset Member time zone (hours offset to UTC)
+
+            @apiSuccessExample {json} Success
+                HTTP/1.1 200 OK
+                {
+                    "id": 1,
+                    "url": "http://localhost:8000/parties/1",
+                    "creator": {
+                        "first_name": "Pete",
+                        "last_name": "Stewart",
+                        "email": "pete@example.com"
+                    },
+                    "title": "MLS Cup",
+                    "description": "Sounders vs Crew",
+                    "datetime": "10/25/2006 14:30"
+                    "isPublic" : false
+                }
+        """
+        try:
+            party = Party.objects.get(pk=pk)
+            serializer = PartySerializer(party, many=False, context={'request': request})
+            return Response(serializer.data)
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+    def destroy(self, request, pk=None):
+        """
+            @api {DELETE} /parties/:id DELETE party
+            @apiName DeleteParty
+            @apiGroup Parties
+
+            @apiParam {id} Party Id to delete
+
+            @apiHeader {String} Authorization Auth token
+            @apiHeaderExample {String} Authorization
+                Token 9ba45f09651c5b0c404f37a2d2572c026c146611
+
+            @apiSuccessExample {json} Success
+                HTTP/1.1 204 No Content
+        """
+
+        current_user = Member.objects.get(user=request.auth.user)
+
+        try:
+            party = Party.objects.get(pk=pk)
+
+        except Party.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
+        if party.creator != current_user:
+            return Response({'message': 'Unauthorized to delete party'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        party.delete()
+
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for user profile
+
+    Arguments:
+        serializers
+    """
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
+        depth = 1
+
+class CreatorSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for member profile
+
+    Arguments:
+        serializers
+    """
+    user = UserSerializer(many=False)
+
+    class Meta:
+        model = Member
+        fields = ('id', 'user')
+        depth = 1
+
+class PartySerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for member profile
+
+    Arguments:
+        serializers
+    """
+    creator = CreatorSerializer(many=False)
+
+    class Meta:
+        model = Party
+        # url = serializers.HyperlinkedIdentityField(
+        #     view_name='parties',
+        #     lookup_field='id'
+        # )
+        fields = ('id', 'title', 'datetime', 'description', 'is_public', 'creator')
+        depth = 1

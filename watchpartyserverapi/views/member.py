@@ -166,7 +166,7 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Member
         # url = serializers.HyperlinkedIdentityField(
-        #     view_name='member',
+        #     view_name='members',
         #     lookup_field='id'
         # )
         fields = ('id', 'user', 'bio', 'location', 'profile_pic', 'location', 'time_zone_offset')

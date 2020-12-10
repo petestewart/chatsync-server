@@ -12,7 +12,7 @@ from watchpartyserverapi.views import *
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'members', Members, 'member')
-# router.register(r'parties', Parties, 'party')
+router.register(r'parties', Parties, 'party')
 # router.register(r'partyguests', PartyGuests, 'partyguest')
 
 
