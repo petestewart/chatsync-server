@@ -31,7 +31,8 @@ def login_user(request):
         # If authentication was successful, respond with user's token
         if authenticated_user is not None:
             token = Token.objects.get(user=authenticated_user)
-            data = json.dumps({"valid": True, "token": token.key, "id": authenticated_user.id})
+            member = Member.objects.get(user=authenticated_user)
+            data = json.dumps({"valid": True, "token": token.key, "member_id": member.id})
             return HttpResponse(data, content_type='application/json')
 
         else:
@@ -46,7 +47,7 @@ def register_user(request):
     '''Handles the creation of a new user for authentication
 
     Method arguments:
-      request -- The full HTTP request object
+        request -- The full HTTP request object
     '''
 
     # Load the JSON string of the request body into a dict
@@ -76,6 +77,6 @@ def register_user(request):
     token = Token.objects.create(user=new_user)
 
     # Return the token to the client
-    data = json.dumps({"token": token.key, "id": new_user.id})
+    data = json.dumps({"token": token.key, "member_id": member.id})
     return HttpResponse(data, content_type='application/json', status=status.HTTP_201_CREATED)
     
