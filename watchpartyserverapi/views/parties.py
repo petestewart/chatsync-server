@@ -211,28 +211,16 @@ class Parties(ViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    """JSON serializer for user profile
-
-    Arguments:
-        serializers
-    """
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name')
-        depth = 1
-
 class CreatorSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
     Arguments:
         serializers
     """
-    user = UserSerializer(many=False)
 
     class Meta:
         model = Member
-        fields = ('id', 'user')
+        fields = ('id', 'full_name', 'profile_pic')
         depth = 1
 
 class PartySerializer(serializers.HyperlinkedModelSerializer):
@@ -245,9 +233,9 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Party
-        # url = serializers.HyperlinkedIdentityField(
-        #     view_name='parties',
-        #     lookup_field='id'
-        # )
-        fields = ('id', 'title', 'datetime', 'description', 'is_public', 'creator')
+        url = serializers.HyperlinkedIdentityField(
+            view_name='parties',
+            lookup_field='id'
+        )
+        fields = ('id', 'url', 'title', 'datetime', 'description', 'is_public', 'creator')
         depth = 1
