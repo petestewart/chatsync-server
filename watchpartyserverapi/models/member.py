@@ -9,3 +9,7 @@ class Member(models.Model):
     location = models.CharField(max_length=50)
     profile_pic = models.URLField(max_length=400)
     time_zone_offset = models.IntegerField()
+    
+    @property
+    def full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}"

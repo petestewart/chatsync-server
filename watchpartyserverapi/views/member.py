@@ -169,5 +169,5 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
         #     view_name='members',
         #     lookup_field='id'
         # )
-        fields = ('id', 'user', 'bio', 'location', 'profile_pic', 'location', 'time_zone_offset')
+        fields = ('id', 'user', 'full_name', 'bio', 'location', 'profile_pic', 'location', 'time_zone_offset')
         depth = 1

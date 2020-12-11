@@ -8,7 +8,7 @@ from rest_framework import status
 from watchpartyserverapi.models import Member, Party
 
 class Parties(ViewSet):
-    """Request handlers for user Member info in the WatchParty Platform"""
+    """Request handlers for user Party info in the WatchParty Platform"""
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def create(self, request):
@@ -38,7 +38,7 @@ class Parties(ViewSet):
             @apiSuccess (200) {id} party.id party Id
             @apiSuccess (200) {String} party.title Short form title of party
             @apiSuccess (200) {String} party.description Long form description of party
-            @apiSuccess (200) {Object} party.creator Created party
+            @apiSuccess (200) {Object} party.creator Created Party
             @apiSuccess (200) {Date} party.datetime Date and time of party
             @apiSuccess (200) {Boolean} party.isPublic Status of party's privacy
             @apiSuccessExample {json} Success
@@ -211,28 +211,16 @@ class Parties(ViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    """JSON serializer for user profile
-
-    Arguments:
-        serializers
-    """
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name')
-        depth = 1
-
 class CreatorSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
     Arguments:
         serializers
     """
-    user = UserSerializer(many=False)
 
     class Meta:
         model = Member
-        fields = ('id', 'user')
+        fields = ('id', 'full_name', 'profile_pic')
         depth = 1
 
 class PartySerializer(serializers.HyperlinkedModelSerializer):
@@ -245,9 +233,9 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Party
-        # url = serializers.HyperlinkedIdentityField(
-        #     view_name='parties',
-        #     lookup_field='id'
-        # )
-        fields = ('id', 'title', 'datetime', 'description', 'is_public', 'creator')
+        url = serializers.HyperlinkedIdentityField(
+            view_name='parties',
+            lookup_field='id'
+        )
+        fields = ('id', 'url', 'title', 'datetime', 'description', 'is_public', 'creator')
         depth = 1
