@@ -55,3 +55,27 @@ class PartyGuests(ViewSet):
 
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def retrieve(self, request, pk=None):
+        if pk is not None:
+            try:
+                party = Party.objects.get(pk=pk)
+            except Party.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+
+            guests = PartyGuest.objects.filter(party=party)
+
+            serializer = PartyGuestSerializer(guests, many=True, context={'request': request})
+            return Response(serializer.data)
+
+class PartyGuestSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for party guests
+
+    Arguments:
+        serializers
+    """
+
+    class Meta:
+        model = PartyGuest
+        fields = ('id', 'full_name', 'profile_pic', 'guest_id', 'rsvp')
+        depth = 1
