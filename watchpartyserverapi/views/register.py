@@ -57,17 +57,22 @@ def register_user(request):
     new_user = User.objects.create_user(
         username=req_body['username'],
         email=req_body['email'],
-        password=req_body['password'],
-        first_name=req_body['first_name'],
-        last_name=req_body['last_name']
+        password=req_body['password']
+        # first_name=req_body['first_name'],
+        # last_name=req_body['last_name']
     )
 
     member = Member.objects.create(
-        bio=req_body['bio'],
-        location=req_body['location'],
-        profile_pic=req_body['profile_pic'],
-        time_zone_offset=req_body['time_zone_offset'],
+        bio='',
+        location='',
+        profile_pic='',
+        time_zone_offset=0,
         user=new_user
+        # bio=req_body['bio'],
+        # location=req_body['location'],
+        # profile_pic=req_body['profile_pic'],
+        # time_zone_offset=req_body['time_zone_offset'],
+        # user=new_user
     )
 
     # Commit the user to the database by saving it
