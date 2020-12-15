@@ -5,6 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
+from rest_framework.decorators import action
 from watchpartyserverapi.models import Member, Party, PartyGuest
 
 class Parties(ViewSet):
@@ -217,7 +218,45 @@ class Parties(ViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-class CreatorSerializer(serializers.HyperlinkedModelSerializer):
+    def list(self, request):
+        try:
+            parties = Party.objects.all()
+
+            for party in parties:
+                partyguests = PartyGuest.objects.filter(party = party)
+                party.guests = partyguests
+
+            serializer = PartySerializer(parties, many=True, context={'request': request})
+            return Response(serializer.data)
+
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+    @action(methods=['get'], detail=False)
+    def myupcoming(self, request):
+        """
+        returns all upcoming parties I am a guest for
+        """
+        try:
+            member = Member.objects.get(user=request.auth.user)
+            invites = PartyGuest.objects.filter(guest=member)
+            parties = []
+
+            for invite in invites:
+                parties.append(invite.party)
+
+            for party in parties:
+                partyguests = PartyGuest.objects.filter(party = party)
+                party.guests = partyguests
+
+            serializer = PartySerializer(parties, many=True, context={'request': request})
+            return Response(serializer.data)
+
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+
+class MemberSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
     Arguments:
@@ -235,7 +274,8 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
     Arguments:
         serializers
     """
-    creator = CreatorSerializer(many=False)
+    creator = MemberSerializer(many=False)
+    guests = MemberSerializer(many=True)
 
     class Meta:
         model = Party
@@ -243,5 +283,5 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
             view_name='parties',
             lookup_field='id'
         )
-        fields = ('id', 'url', 'title', 'datetime', 'description', 'is_public', 'creator')
+        fields = ('id', 'url', 'guests', 'title', 'datetime', 'description', 'is_public', 'creator')
         depth = 1
