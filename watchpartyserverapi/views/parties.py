@@ -5,7 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from watchpartyserverapi.models import Member, Party
+from watchpartyserverapi.models import Member, Party, PartyGuest
 
 class Parties(ViewSet):
     """Request handlers for user Party info in the WatchParty Platform"""
@@ -66,8 +66,14 @@ class Parties(ViewSet):
         new_party.datetime = request.data["datetime"]
         new_party.is_public = request.data["is_public"]
 
+        partyguest = PartyGuest()
+        partyguest.guest = current_user
+        partyguest.party = new_party
+        partyguest.rsvp = True
+
         try:
             new_party.save()
+            partyguest.save()
             serializer = PartySerializer(new_party, many=False, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
