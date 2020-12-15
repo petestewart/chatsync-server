@@ -217,6 +217,16 @@ class Parties(ViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
+    def list(self, request):
+        try:
+            parties = Party.objects.all()
+
+            serializer = PartySerializer(parties, many=True, context={'request': request})
+            return Response(serializer.data)
+
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
 class CreatorSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
