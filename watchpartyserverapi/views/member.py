@@ -124,8 +124,8 @@ class Members(ViewSet):
         """
         member = Member.objects.get(user=request.auth.user)
 
-        if member.id != int(pk):
-            return Response('You are not authorized to update this account', status=status.HTTP_401_UNAUTHORIZED)
+        # if member.id != int(pk):
+        #     return Response('You are not authorized to update this account', status=status.HTTP_401_UNAUTHORIZED)
 
         try:
             member.user.first_name = request.data["first_name"]
