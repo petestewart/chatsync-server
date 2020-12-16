@@ -75,6 +75,8 @@ class Parties(ViewSet):
         try:
             new_party.save()
             partyguest.save()
+            partyguests = PartyGuest.objects.filter(party=new_party)
+            new_party.guests = partyguests
             serializer = PartySerializer(new_party, many=False, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
@@ -182,6 +184,8 @@ class Parties(ViewSet):
         """
         try:
             party = Party.objects.get(pk=pk)
+            partyguests = PartyGuest.objects.filter(party = party)
+            party.guests = partyguests
             serializer = PartySerializer(party, many=False, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
@@ -246,10 +250,10 @@ class Parties(ViewSet):
                 parties.append(invite.party)
 
             for party in parties:
-                partyguests = PartyGuest.objects.filter(party = party)
-                party.guests = partyguests
+                partyguest = PartyGuest.objects.filter(party=party, guest=member).first()
+                party.rsvp = partyguest.rsvp
 
-            serializer = PartySerializer(parties, many=True, context={'request': request})
+            serializer = PartyWithRSVPSerializer(parties, many=True, context={'request': request})
             return Response(serializer.data)
 
         except Exception as ex:
@@ -284,4 +288,28 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
             lookup_field='id'
         )
         fields = ('id', 'url', 'guests', 'title', 'datetime', 'description', 'is_public', 'creator')
+        depth = 1
+
+class RSVPSerializer(serializers.BooleanField):
+    """JSON serializer for RSVP on Party Guest"""
+    fields = ('rsvp')
+    depth = 0
+
+
+class PartyWithRSVPSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for member profile
+
+    Arguments:
+        serializers
+    """
+    creator = MemberSerializer(many=False)
+    # guests = MemberSerializer(many=True)
+    rsvp = RSVPSerializer()
+    class Meta:
+        model = Party
+        url = serializers.HyperlinkedIdentityField(
+            view_name='parties',
+            lookup_field='id'
+        )
+        fields = ('id', 'url', 'rsvp', 'title', 'datetime', 'description', 'is_public', 'creator')
         depth = 1
