@@ -15,6 +15,7 @@ router.register(r'members', Members, 'member')
 router.register(r'parties', Parties, 'party')
 router.register(r'partyguests', PartyGuests, 'partyguest')
 router.register(r'reactions', Reactions, 'reaction')
+router.register(r'messagereactions', MessageReactions, 'messagereaction')
 
 
 urlpatterns = [
