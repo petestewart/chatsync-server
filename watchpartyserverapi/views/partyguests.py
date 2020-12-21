@@ -68,6 +68,16 @@ class PartyGuests(ViewSet):
             serializer = PartyGuestSerializer(guests, many=True, context={'request': request})
             return Response(serializer.data)
 
+    def destroy(self, request, pk=None):
+        try:
+            party = Party.objects.get(pk=pk)
+            guest = Member.objects.get(pk=request.data["guest_id"])
+            party_guest = PartyGuest.objects.get(party=party, guest=guest)
+            party_guest.delete()
+            return Response({'message': 'guest deleted'}, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class PartyGuestSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for party guests
 

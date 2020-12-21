@@ -1,0 +1,65 @@
+[
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 1,
+        "fields": {
+                "name": "+1"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 2,
+        "fields": {
+                "name": "-1"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 3,
+        "fields": {
+                "name": "heart"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 4,
+        "fields": {
+                "name": "clap"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 5,
+        "fields": {
+                "name": "laughing"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 6,
+        "fields": {
+                "name": "cry"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 7,
+        "fields": {
+                "name": "100"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 8,
+        "fields": {
+                "name": "fire"
+        }
+    },
+    {
+        "model": "watchpartyserverapi.reaction",
+        "pk": 9,
+        "fields": {
+                "name": "raised_hands"
+        }
+    }
+]

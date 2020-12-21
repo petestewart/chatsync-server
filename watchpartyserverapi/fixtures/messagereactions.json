@@ -1,0 +1,22 @@
+[
+    {
+        "model": "watchpartyserverapi.messagereaction",
+        "pk": 1,
+        "fields": {
+                "message_id": "4fckOfWDUzDqsw8n5XxF",
+                "reaction": 1,
+                "reactor": 1,
+                "party": 1
+        }
+    },
+    {
+        "model": "watchpartyserverapi.messagereaction",
+        "pk": 2,
+        "fields": {
+                "message_id": "4fckOfWDUzDqsw8n5XxF",
+                "reaction": 2,
+                "reactor": 1,
+                "party": 1
+        }
+    }
+]
