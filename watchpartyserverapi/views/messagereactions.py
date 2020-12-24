@@ -35,6 +35,28 @@ class MessageReactions(ViewSet):
         except Exception as ex:
                 return HttpResponseServerError(ex)
 
+    def create(self, request):
+        """POST method for creating message reaction"""
+
+        try:
+            party = Party.objects.get(pk=request.data["party_id"])
+            reactor = Member.objects.get(pk=request.data["member_id"])
+            reaction = Reaction.objects.get(pk=request.data["reaction_id"])
+            message_id = request.data["message_id"]
+            
+            message_reaction = MessageReaction()
+            message_reaction.party = party
+            message_reaction.reactor = reactor
+            message_reaction.reaction = reaction
+            message_reaction.message_id = message_id
+
+            message_reaction.save()
+            return Response({}, status=status.HTTP_201_CREATED)
+
+
+        except Exception as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class MemberSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
