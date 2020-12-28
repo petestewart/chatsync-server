@@ -40,10 +40,12 @@ class MessageReactions(ViewSet):
 
 
         try:
+            current_user = Member.objects.get(user=request.auth.user)
+
             party = Party.objects.get(pk=request.data["party_id"])
-            reactor = Member.objects.get(pk=request.data["member_id"])
             reaction = Reaction.objects.get(pk=request.data["reaction_id"])
             message_id = request.data["message_id"]
+            reactor = current_user
             
             message_reaction = MessageReaction()
             message_reaction.party = party
