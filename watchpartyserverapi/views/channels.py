@@ -36,9 +36,28 @@ class Channels(ViewSet):
         try:
             channels = Channel.objects.all()
 
+
+            # Filter by member if requested
+            member_id = self.request.query_params.get('member_id', None)
+
+            if member_id is not None:
+                channels = []
+                member = Member.objects.get(pk=member_id)
+                member_channels = ChannelMember.objects.filter(member=member)
+                for chan in member_channels:
+                    channel = Channel.objects.get(pk=chan.channel.id)
+                    channels.append(channel)
+
             for channel in channels:
                 members = ChannelMember.objects.filter(channel=channel)
                 channel.members = members
+
+            # # Filter by member if requested
+            # member_id = self.request.query_params.get('member_id', None)
+
+            # if member_id is not None:
+            #     member = Member.objects.get(pk=member_id)
+            #     channels = channels.filter(member=member)
 
             serializer = ChannelSerializer(channels, many=True, context={'request': request})
             return Response(serializer.data)
@@ -86,6 +105,18 @@ class MemberSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'full_name', 'profile_pic')
         depth = 1
 
+class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for channel members
+
+    Arguments:
+        serializers
+    """
+
+    class Meta:
+        model = ChannelMember
+        fields = ('full_name', 'profile_pic', 'member_id')
+        depth = 1
+
 class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for channel profile
 
@@ -94,7 +125,7 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     """
 
     creator = MemberSerializer(many=False)
-    members = MemberSerializer(many=True)
+    members = ChannelMemberSerializer(many=True)
 
     class Meta:
         model = Channel

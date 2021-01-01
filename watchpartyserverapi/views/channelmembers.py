@@ -65,5 +65,5 @@ class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ChannelMember
-        fields = ('id', 'full_name', 'profile_pic', 'member_id')
+        fields = ('full_name', 'profile_pic', 'member_id')
         depth = 1
