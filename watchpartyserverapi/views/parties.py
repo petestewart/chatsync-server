@@ -211,9 +211,16 @@ class Parties(ViewSet):
         try:
             party = Party.objects.get(pk=pk)
             partyguests = PartyGuest.objects.filter(party = party)
-            party.guests = partyguests
+            
+            guests = []
+            for partyguest in partyguests:
+                guest = partyguest.guest
+                guests.append(guest)
+            party.guests = guests
+            
             serializer = PartySerializer(party, many=False, context={'request': request})
             return Response(serializer.data)
+
         except Exception as ex:
             return HttpResponseServerError(ex)
 
@@ -261,7 +268,11 @@ class Parties(ViewSet):
 
             for party in parties:
                 partyguests = PartyGuest.objects.filter(party = party)
-                party.guests = partyguests
+                guests = []
+                for partyguest in partyguests:
+                    guest = partyguest.guest
+                    guests.append(guest)
+                party.guests = guests
 
             serializer = PartySerializer(parties, many=True, context={'request': request})
             return Response(serializer.data)
