@@ -32,6 +32,25 @@ class Channels(ViewSet):
         except Exception as ex:
             return HttpResponseServerError(ex)
 
+    def update(self, request, pk=None):
+        """
+        Update Channel viewset
+        """
+
+        channel = Channel.objects.get(pk=pk)
+        channel.name = request.data["name"]
+        channel.description = request.data["description"]
+        channel.image = request.data["image"]
+
+        try:
+            channel.save()
+            channel.members=[]
+            serializer = ChannelSerializer(channel, many=False, context={'request': request})
+            return Response(serializer.data)
+
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
     def list(self, request):
         """GET for all channels"""
         try:
