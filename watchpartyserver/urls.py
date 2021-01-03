@@ -11,6 +11,8 @@ from watchpartyserverapi.models import *
 from watchpartyserverapi.views import *
 
 router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'channels', Channels, 'channel')
+router.register(r'channelmembers', ChannelMembers, 'channelmember')
 router.register(r'members', Members, 'member')
 router.register(r'parties', Parties, 'party')
 router.register(r'partyguests', PartyGuests, 'partyguest')

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
-from watchpartyserverapi.models import Member, Party, PartyGuest
+from watchpartyserverapi.models import Channel, Member, Party, PartyGuest
 
 class Parties(ViewSet):
     """Request handlers for user Party info in the WatchParty Platform"""
@@ -60,12 +60,25 @@ class Parties(ViewSet):
                 }
         """
         current_user = Member.objects.get(user=request.auth.user)
+        channel = None
+
         new_party = Party()
         new_party.creator = current_user
         new_party.title = request.data["title"]
         new_party.description = request.data["description"]
         new_party.datetime = request.data["datetime"]
         new_party.is_public = request.data["is_public"]
+
+        channel_id = request.data["channel_id"]
+
+        if channel_id is not None:
+            try:
+                channel = Channel.objects.get(pk=channel_id)
+
+            except Channel.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND) 
+
+        new_party.channel = channel
 
         partyguest = PartyGuest()
         partyguest.guest = current_user
@@ -132,14 +145,27 @@ class Parties(ViewSet):
                     }
                 }
         """
+
         party = Party.objects.get(pk=pk)
         party.title = request.data["title"]
         party.description = request.data["description"]
         party.datetime = request.data["datetime"]
         party.is_public = request.data["is_public"]
 
+        channel_id = request.data["channel_id"]
+        if channel_id is not None:
+            try:
+                channel = Channel.objects.get(pk=request.data["channel_id"])
+                party.channel = channel
+            except Channel.DoesNotExist as ex:
+                return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            party.channel = None
+
         try:
             party.save()
+            partyguests = PartyGuest.objects.filter(party = party)
+            party.guests = partyguests
             serializer = PartySerializer(party, many=False, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
@@ -185,9 +211,16 @@ class Parties(ViewSet):
         try:
             party = Party.objects.get(pk=pk)
             partyguests = PartyGuest.objects.filter(party = party)
-            party.guests = partyguests
+            
+            guests = []
+            for partyguest in partyguests:
+                guest = partyguest.guest
+                guests.append(guest)
+            party.guests = guests
+            
             serializer = PartySerializer(party, many=False, context={'request': request})
             return Response(serializer.data)
+
         except Exception as ex:
             return HttpResponseServerError(ex)
 
@@ -226,9 +259,20 @@ class Parties(ViewSet):
         try:
             parties = Party.objects.all()
 
+            # filter by channel if requested
+            channel_id = self.request.query_params.get('channel_id', None)
+
+            if channel_id is not None:
+                channel = Channel.objects.get(pk=channel_id)
+                parties = parties.filter(channel=channel)
+
             for party in parties:
                 partyguests = PartyGuest.objects.filter(party = party)
-                party.guests = partyguests
+                guests = []
+                for partyguest in partyguests:
+                    guest = partyguest.guest
+                    guests.append(guest)
+                party.guests = guests
 
             serializer = PartySerializer(parties, many=True, context={'request': request})
             return Response(serializer.data)
@@ -247,7 +291,9 @@ class Parties(ViewSet):
             parties = []
 
             for invite in invites:
-                parties.append(invite.party)
+                party = invite.party
+                if party not in parties:
+                    parties.append(party)
 
             for party in parties:
                 partyguest = PartyGuest.objects.filter(party=party, guest=member).first()
@@ -258,6 +304,22 @@ class Parties(ViewSet):
 
         except Exception as ex:
             return HttpResponseServerError(ex)
+
+class ChannelSerializer(serializers.HyperlinkedModelSerializer):
+    """JSON serializer for channel profile
+
+    Arguments:
+        serializers
+    """
+
+    class Meta:
+        model = Channel
+        url = serializers.HyperlinkedIdentityField(
+            view_name='channels',
+            lookup_field='id'
+        )
+        fields = ('id', 'url', 'name', 'image')
+        depth = 0
 
 
 class MemberSerializer(serializers.HyperlinkedModelSerializer):
@@ -278,6 +340,7 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
     Arguments:
         serializers
     """
+    channel = ChannelSerializer(many=False)
     creator = MemberSerializer(many=False)
     guests = MemberSerializer(many=True)
 
@@ -287,7 +350,7 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
             view_name='parties',
             lookup_field='id'
         )
-        fields = ('id', 'url', 'guests', 'title', 'datetime', 'description', 'is_public', 'creator')
+        fields = ('id', 'url', 'guests', 'title', 'datetime', 'description', 'is_public', 'creator', 'channel')
         depth = 1
 
 class RSVPSerializer(serializers.BooleanField):
@@ -311,5 +374,5 @@ class PartyWithRSVPSerializer(serializers.HyperlinkedModelSerializer):
             view_name='parties',
             lookup_field='id'
         )
-        fields = ('id', 'url', 'rsvp', 'title', 'datetime', 'description', 'is_public', 'creator')
+        fields = ('id', 'url', 'rsvp', 'title', 'datetime', 'description', 'is_public', 'creator', 'channel')
         depth = 1
