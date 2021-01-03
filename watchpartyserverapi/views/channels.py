@@ -25,7 +25,8 @@ class Channels(ViewSet):
 
         try:
             new_channel.save()
-            serializer = ChannelSerializer(new_channel, many=-False, context={'request': request})
+            new_channel.members=[]
+            serializer = ChannelSerializer(new_channel, many=False, context={'request': request})
             return Response(serializer.data)
 
         except Exception as ex:

@@ -1,9 +1,11 @@
 """Party model"""
 from django.db import models
+from .channel import Channel
 from .member import Member
 
 class Party(models.Model):
     """Party model"""
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     creator = models.ForeignKey(Member, on_delete=models.CASCADE)
     datetime = models.DateTimeField(auto_now=False, auto_now_add=False)
     description = models.CharField(max_length=255)
