@@ -50,6 +50,7 @@ class Channels(ViewSet):
         channel = Channel.objects.get(pk=pk)
         channel.name = request.data["name"]
         channel.description = request.data["description"]
+
         # channel.image = request.data["image"]
 
         if request.data["image"] is not None:
