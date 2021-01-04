@@ -316,6 +316,8 @@ class ChannelSerializer(serializers.HyperlinkedModelSerializer):
         serializers
     """
 
+    image = serializers.ImageField()
+
     class Meta:
         model = Channel
         url = serializers.HyperlinkedIdentityField(
@@ -332,6 +334,8 @@ class MemberSerializer(serializers.HyperlinkedModelSerializer):
     Arguments:
         serializers
     """
+
+    profile_pic = serializers.ImageField()
 
     class Meta:
         model = Member

@@ -56,6 +56,12 @@ class ChannelMembers(ViewSet):
         except Exception as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ProfilePicSerializer(serializers.ImageField):
+    """Profile Pic serializer for channel members"""
+    fields = ('profile_pic')
+    depth = 0
+
+
 class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for channel members
 
@@ -63,7 +69,10 @@ class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
         serializers
     """
 
+    profile_pic = ProfilePicSerializer()
+
     class Meta:
         model = ChannelMember
+        # fields = ('full_name', 'member_id')
         fields = ('full_name', 'profile_pic', 'member_id')
         depth = 1
