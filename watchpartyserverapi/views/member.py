@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from watchpartyserverapi.models import Member
+import uuid
+import base64
+from django.core.files.base import ContentFile
 
 class Members(ViewSet):
     """Request handlers for user Member info in the WatchParty Platform"""
@@ -134,6 +137,15 @@ class Members(ViewSet):
             member.bio = request.data["bio"]
             member.location = request.data["location"]
             member.profile_pic = request.data["profile_pic"]
+
+            if request.data["image"] is not None:
+                format, imgstr = request.data["image"].split(';base64,')
+                ext = format.split('/')[-1]
+                data = ContentFile(base64.b64decode(imgstr), name=f'"image"-{uuid.uuid4()}.{ext}')
+                member.image = data
+            else: member.image = ""
+
+
             member.time_zone_offset = request.data["time_zone_offset"]
             member.user.save()
             member.save()
@@ -169,5 +181,5 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
         #     view_name='members',
         #     lookup_field='id'
         # )
-        fields = ('id', 'user', 'full_name', 'bio', 'location', 'profile_pic', 'location', 'time_zone_offset')
+        fields = ('id', 'user', 'full_name', 'bio', 'location', 'profile_pic', 'image', 'location', 'time_zone_offset')
         depth = 1
