@@ -7,8 +7,8 @@ class Member(models.Model):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
     bio = models.CharField(max_length=255)
     location = models.CharField(max_length=50)
-    image = models.ImageField(default='avatar.jpg', upload_to='images/avatars')
-    profile_pic = models.URLField(max_length=400)
+    profile_pic = models.ImageField(default='avatar.jpeg', upload_to='images/avatars')
+    # profile_pic = models.URLField(max_length=400)
     time_zone_offset = models.IntegerField()
     
     @property

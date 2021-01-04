@@ -85,6 +85,8 @@ class PartyGuestSerializer(serializers.HyperlinkedModelSerializer):
         serializers
     """
 
+    profile_pic = serializers.ImageField()
+
     class Meta:
         model = PartyGuest
         fields = ('id', 'full_name', 'profile_pic', 'guest_id', 'rsvp')

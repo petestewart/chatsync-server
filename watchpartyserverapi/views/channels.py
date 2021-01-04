@@ -1,11 +1,14 @@
+import uuid
+import base64
 from django.http import HttpResponseServerError
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action, permission_classes
+from django.core.files.base import ContentFile
 from watchpartyserverapi.models import Member, Channel, ChannelMember
 
 class Channels(ViewSet):
@@ -20,13 +23,45 @@ class Channels(ViewSet):
         new_channel = Channel()
         new_channel.name = request.data["name"]
         new_channel.description = request.data["description"]
-        new_channel.image = request.data["image"]
+        # new_channel.image = request.data["image"]
         new_channel.creator = current_user
+
+        if request.data["image"] is not None:
+            format, imgstr = request.data["image"].split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'"image"-{uuid.uuid4()}.{ext}')
+            new_channel.image = data
+        else: new_channel.image = ""
 
         try:
             new_channel.save()
             new_channel.members=[]
             serializer = ChannelSerializer(new_channel, many=False, context={'request': request})
+            return Response(serializer.data)
+
+        except Exception as ex:
+            return HttpResponseServerError(ex)
+
+    def update(self, request, pk=None):
+        """
+        Update Channel viewset
+        """
+
+        channel = Channel.objects.get(pk=pk)
+        channel.name = request.data["name"]
+        channel.description = request.data["description"]
+        # channel.image = request.data["image"]
+
+        if request.data["image"] is not None:
+            format, imgstr = request.data["image"].split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'"image"-{uuid.uuid4()}.{ext}')
+            channel.image = data
+
+        try:
+            channel.save()
+            channel.members=[]
+            serializer = ChannelSerializer(channel, many=False, context={'request': request})
             return Response(serializer.data)
 
         except Exception as ex:
@@ -95,6 +130,8 @@ class Channels(ViewSet):
         except Exception as ex:
             return HttpResponseServerError(ex)
 
+
+
 class MemberSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for member profile
 
@@ -103,7 +140,8 @@ class MemberSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = Member
-        fields = ('id', 'full_name', 'profile_pic')
+        fields = ('id', 'full_name')
+        # fields = ('id', 'full_name', 'profile_pic')
         depth = 1
 
 class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
@@ -113,10 +151,14 @@ class ChannelMemberSerializer(serializers.HyperlinkedModelSerializer):
         serializers
     """
 
+    profile_pic = serializers.ImageField()
+
     class Meta:
         model = ChannelMember
+        # fields = ('full_name', 'member_id')
         fields = ('full_name', 'profile_pic', 'member_id')
         depth = 1
+
 
 class ChannelSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for channel profile

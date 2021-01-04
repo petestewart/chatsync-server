@@ -1,3 +1,5 @@
+import uuid
+import base64
 from django.http import HttpResponseServerError
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -5,10 +7,8 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from watchpartyserverapi.models import Member
-import uuid
-import base64
 from django.core.files.base import ContentFile
+from watchpartyserverapi.models import Member
 
 class Members(ViewSet):
     """Request handlers for user Member info in the WatchParty Platform"""
@@ -136,14 +136,14 @@ class Members(ViewSet):
             member.user.email = request.data["email"]
             member.bio = request.data["bio"]
             member.location = request.data["location"]
-            member.profile_pic = request.data["profile_pic"]
+            # member.profile_pic = request.data["profile_pic"]
 
-            if request.data["image"] is not None:
-                format, imgstr = request.data["image"].split(';base64,')
+            if request.data["profile_pic"] is not None:
+                format, imgstr = request.data["profile_pic"].split(';base64,')
                 ext = format.split('/')[-1]
-                data = ContentFile(base64.b64decode(imgstr), name=f'"image"-{uuid.uuid4()}.{ext}')
-                member.image = data
-            else: member.image = ""
+                data = ContentFile(base64.b64decode(imgstr), name=f'"profile_pic"-{uuid.uuid4()}.{ext}')
+                member.profile_pic = data
+            else: member.profile_pic = ""
 
 
             member.time_zone_offset = request.data["time_zone_offset"]
@@ -181,5 +181,5 @@ class ProfileSerializer(serializers.HyperlinkedModelSerializer):
         #     view_name='members',
         #     lookup_field='id'
         # )
-        fields = ('id', 'user', 'full_name', 'bio', 'location', 'profile_pic', 'image', 'location', 'time_zone_offset')
+        fields = ('id', 'user', 'full_name', 'bio', 'location', 'profile_pic', 'location', 'time_zone_offset')
         depth = 1
