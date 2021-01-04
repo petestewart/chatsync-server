@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework import status
 from rest_framework.decorators import action
 from watchpartyserverapi.models import Channel, Member, Party, PartyGuest
+from datetime import datetime
 
 class Parties(ViewSet):
     """Request handlers for user Party info in the WatchParty Platform"""
@@ -67,6 +68,7 @@ class Parties(ViewSet):
         new_party.title = request.data["title"]
         new_party.description = request.data["description"]
         new_party.datetime = request.data["datetime"]
+        new_party.datetime_end = request.data["datetime_end"]
         new_party.is_public = request.data["is_public"]
 
         channel_id = request.data["channel_id"]
@@ -150,6 +152,7 @@ class Parties(ViewSet):
         party.title = request.data["title"]
         party.description = request.data["description"]
         party.datetime = request.data["datetime"]
+        party.datetime_end = request.data["datetime_end"]
         party.is_public = request.data["is_public"]
 
         channel_id = request.data["channel_id"]
@@ -292,7 +295,8 @@ class Parties(ViewSet):
 
             for invite in invites:
                 party = invite.party
-                if party not in parties:
+                if party not in parties and party.datetime_end >= datetime.now():
+                # if party not in parties:
                     parties.append(party)
 
             for party in parties:
@@ -350,7 +354,7 @@ class PartySerializer(serializers.HyperlinkedModelSerializer):
             view_name='parties',
             lookup_field='id'
         )
-        fields = ('id', 'url', 'guests', 'title', 'datetime', 'description', 'is_public', 'creator', 'channel')
+        fields = ('id', 'url', 'guests', 'title', 'datetime', 'datetime_end', 'description', 'is_public', 'creator', 'channel')
         depth = 1
 
 class RSVPSerializer(serializers.BooleanField):
@@ -374,5 +378,5 @@ class PartyWithRSVPSerializer(serializers.HyperlinkedModelSerializer):
             view_name='parties',
             lookup_field='id'
         )
-        fields = ('id', 'url', 'rsvp', 'title', 'datetime', 'description', 'is_public', 'creator', 'channel')
+        fields = ('id', 'url', 'rsvp', 'title', 'datetime', 'datetime_end', 'description', 'is_public', 'creator', 'channel')
         depth = 1
