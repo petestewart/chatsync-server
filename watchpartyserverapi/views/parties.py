@@ -245,6 +245,13 @@ class Parties(ViewSet):
 
         current_user = Member.objects.get(user=request.auth.user)
 
+        # temporary ONLY! can delete all parties with this command
+        if pk == 'all':
+            parties = Party.objects.all()
+            parties.delete()
+            return Response({'all parties deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+
         try:
             party = Party.objects.get(pk=pk)
 
