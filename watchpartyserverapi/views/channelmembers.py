@@ -7,6 +7,8 @@ from rest_framework import serializers
 from rest_framework import status
 from watchpartyserverapi.models import Member, Channel, ChannelMember
 
+from watchpartyserverapi.firebase.firebase import send_notification
+
 class ChannelMembers(ViewSet):
     """Request handlers for user ChannelMember info in the WatchParty Platform"""
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -28,6 +30,12 @@ class ChannelMembers(ViewSet):
 
         try:
             channel_member.save()
+
+            message = f"You are now a member of the channel #{channel.name}!"
+            recipient = f"{member.id}"
+            link = f"http://localhost:3000/channels/{channel.id}"
+            send_notification(recipient, message, link)
+
             return Response({}, status=status.HTTP_201_CREATED)
 
         except Exception as ex:
