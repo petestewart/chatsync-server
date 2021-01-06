@@ -143,7 +143,6 @@ class Members(ViewSet):
                 ext = format.split('/')[-1]
                 data = ContentFile(base64.b64decode(imgstr), name=f'"profile_pic"-{uuid.uuid4()}.{ext}')
                 member.profile_pic = data
-            else: member.profile_pic = ""
 
 
             member.time_zone_offset = request.data["time_zone_offset"]
