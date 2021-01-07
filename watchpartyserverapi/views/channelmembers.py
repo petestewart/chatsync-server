@@ -33,7 +33,7 @@ class ChannelMembers(ViewSet):
 
             message = f"You are now a member of the channel #{channel.name}!"
             recipient = f"{member.id}"
-            link = f"http://localhost:3000/channels/{channel.id}"
+            link = f"/channels/{channel.id}"
             send_notification(recipient, message, link)
 
             return Response({}, status=status.HTTP_201_CREATED)

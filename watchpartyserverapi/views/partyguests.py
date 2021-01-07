@@ -55,9 +55,13 @@ class PartyGuests(ViewSet):
         try:
             party_guest.save()
 
-            message = f"You have been invited to the event {party.title}!"
+            if party.title is not '':
+                message = f"You have been invited to the event {party.title}!"
+            else:
+                message = "You have been invited to an event!"
+
             recipient = f"{guest.id}"
-            link = f"http://localhost:3000/party/{party.id}"
+            link = f"/party/{party.id}"
             send_notification(recipient, message, link)
 
             return Response({}, status=status.HTTP_201_CREATED)

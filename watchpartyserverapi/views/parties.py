@@ -175,7 +175,7 @@ class Parties(ViewSet):
             for guest in partyguests:
                 message = f"The details of {party.title} have been changed"
                 recipient = f"{guest.member_id}"
-                link = f"http://localhost:3000/party/{party.id}"
+                link = f"/party/{party.id}"
                 send_notification(recipient, message, link)
 
 
