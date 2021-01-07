@@ -9,6 +9,8 @@ from rest_framework.decorators import action
 from watchpartyserverapi.models import Channel, Member, Party, PartyGuest
 from datetime import datetime
 
+from watchpartyserverapi.firebase.firebase import send_notification
+
 class Parties(ViewSet):
     """Request handlers for user Party info in the WatchParty Platform"""
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -169,6 +171,14 @@ class Parties(ViewSet):
             party.save()
             partyguests = PartyGuest.objects.filter(party = party)
             party.guests = partyguests
+
+            for guest in partyguests:
+                message = f"The details of {party.title} have been changed"
+                recipient = f"{guest.member_id}"
+                link = f"/party/{party.id}"
+                send_notification(recipient, message, link)
+
+
             serializer = PartySerializer(party, many=False, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
@@ -266,6 +276,9 @@ class Parties(ViewSet):
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
     def list(self, request):
+
+        # send_notification(77, "test message")
+        
         try:
             parties = Party.objects.all()
 

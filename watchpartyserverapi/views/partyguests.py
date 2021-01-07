@@ -7,6 +7,9 @@ from rest_framework import serializers
 from rest_framework import status
 from watchpartyserverapi.models import Member, Party, PartyGuest
 
+from watchpartyserverapi.firebase.firebase import send_notification
+
+
 class PartyGuests(ViewSet):
     """Request handlers for user PartyGuest info in the WatchParty Platform"""
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -51,6 +54,16 @@ class PartyGuests(ViewSet):
 
         try:
             party_guest.save()
+
+            if party.title is not '':
+                message = f"You have been invited to the event {party.title}!"
+            else:
+                message = "You have been invited to an event!"
+
+            recipient = f"{guest.id}"
+            link = f"/party/{party.id}"
+            send_notification(recipient, message, link)
+
             return Response({}, status=status.HTTP_201_CREATED)
 
         except Exception as ex:

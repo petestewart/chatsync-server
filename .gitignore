@@ -146,3 +146,5 @@ dmypy.json
 .vscode
 watchpartysever/settings.py
 media
+
+firebase_key.json
