@@ -8,6 +8,9 @@ from rest_framework import status
 from rest_framework.decorators import action
 from watchpartyserverapi.models import Channel, Member, Party, PartyGuest
 from datetime import datetime
+import pytz
+from django.utils.timezone import make_aware
+
 
 from watchpartyserverapi.firebase.firebase import send_notification
 
@@ -69,9 +72,21 @@ class Parties(ViewSet):
         new_party.creator = current_user
         new_party.title = request.data["title"]
         new_party.description = request.data["description"]
-        new_party.datetime = request.data["datetime"]
-        new_party.datetime_end = request.data["datetime_end"]
         new_party.is_public = request.data["is_public"]
+
+
+        datetime_start = request.data["datetime"]
+        datetime_end = request.data["datetime_end"]
+        # new_party.datetime = request.data["datetime"]
+        # new_party.datetime_end = request.data["datetime_end"]
+        
+        # datetime_start = datetime(new_party.datetime, tzinfo=pytz.utc)
+        # datetime_end = datetime(new_party.datetime_end, tzinfo=pytz.utc)
+        
+
+        new_party.datetime = datetime_start
+        new_party.datetime_end = datetime_end
+
 
         channel_id = request.data["channel_id"]
 
@@ -315,7 +330,8 @@ class Parties(ViewSet):
 
             for invite in invites:
                 party = invite.party
-                if party not in parties and party.datetime_end >= datetime.now():
+                # make_aware(party.datetime_end, timezone='UTC', is_dst=None)
+                if party not in parties and party.datetime_end >= datetime.now(pytz.utc):
                 # if party not in parties:
                     parties.append(party)
 
