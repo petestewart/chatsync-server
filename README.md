@@ -1,5 +1,5 @@
-# Chat-Sync server
+## ChatSync server
 
-Server and API for my app [ChatSync](https://github.com/petestewart/chatsync-server), created with Python and Django.
+Server and API for my app [ChatSync](https://github.com/petestewart/chatsync-client), created with Python and Django.
 
 (proper README coming soon)
