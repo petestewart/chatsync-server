@@ -17,7 +17,7 @@ Video walkthrough demo [here](https://www.youtube.com/watch?v=9XOqC5OOMCA)
 * Integrated "spoiler buster" feature that automatically calculates the correct time offset for each user's chat feed to sync messages between each other
 
 ### Screenshots
-![screenshots](chatsync-preview.gif)
+![screenshots](https://github.com/petestewart/chatsync-client/raw/main/chatsync-preview.gif)
   
 ### Developer
 Pete Stewart : https://github.com/petestewart
